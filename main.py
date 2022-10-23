@@ -4,23 +4,36 @@ cv2.namedWindow("original")
 cv2.namedWindow("new")
 vc = cv2.VideoCapture(0)
 
-# adjust brightness in rgb image to make object more visible
+# function to increase visibility in rgb image by adjusting the contrast and brightness
 
 
-def adjust_image(frame):
-    # convert to hsv
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    # get brightness
-    h, s, v = cv2.split(hsv)
-    # increase brightness
-    lim = 255 - 50
-    v[v > lim] = 255
-    v[v <= lim] += 50
-    # merge hsv
-    final_hsv = cv2.merge((h, s, v))
-    # convert to rgb
-    frame = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
-    return frame
+def increase_visibility(img):
+    LAB = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+
+    L = LAB[:, :, 0]
+
+    # threshold L channel with triangle method
+    value, thresh = cv2.threshold(
+        L, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_TRIANGLE)
+    print(value)
+
+    # threshold with adjusted value
+    value = value + 10
+    thresh = cv2.threshold(L, value, 255, cv2.THRESH_BINARY)[1]
+
+    # invert threshold and make 3 channels
+    thresh = 255 - thresh
+    thresh = cv2.merge([thresh, thresh, thresh])
+
+    gain = 1.5 * 2
+    blue = cv2.multiply(img[:, :, 0], gain)
+    green = cv2.multiply(img[:, :, 1], gain)
+    red = cv2.multiply(img[:, :, 2], gain)
+    img_bright = cv2.merge([blue, green, red])
+
+    # blend original and brightened using thresh as mask
+    result = np.where(thresh == 255, img_bright, img)
+    return result
 
 
 if vc.isOpened():  # try to get the first frame
@@ -30,7 +43,7 @@ else:
 
 while rval:
 
-    frame_new = adjust_image(frame)
+    frame_new = increase_visibility(frame)
     cv2.imshow("original", frame)
     cv2.imshow("new", frame_new)
 
