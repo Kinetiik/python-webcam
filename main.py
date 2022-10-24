@@ -8,6 +8,7 @@ vc = cv2.VideoCapture(0)
 
 
 def increase_visibility(img):
+    max_gain = 3.5
     # LAB = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
 
     # L = LAB[:, :, 0]
@@ -43,32 +44,25 @@ def increase_visibility(img):
         L, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_TRIANGLE)
     print(value)
 
-    # threshold with adjusted value
-    value2 = int(value*0.5)
-    thresh = cv2.threshold(L, value2, 255, cv2.THRESH_BINARY)[1]
+    for i in range(20):
+        new_value = int(value*1/(i+1))
+
+        if i == 0:
+            thresh = cv2.threshold(L, new_value, 255, cv2.THRESH_BINARY)[1]
+            thresh = 255 - thresh
+            thresh = cv2.merge([thresh, thresh, thresh])
+
+        gain = (max_gain * 1/(i+1)) + 1
+        blue = cv2.multiply(img[:, :, 0], gain)
+        green = cv2.multiply(img[:, :, 1], gain)
+        red = cv2.multiply(img[:, :, 2], gain)
+        img_bright = cv2.merge([blue, green, red])
+        result = np.where(thresh == 255, img_bright, img)
 
     # invert threshold and make 3 channels
-    thresh = 255 - thresh
-    thresh = cv2.merge([thresh, thresh, thresh])
-
-    gain = 2
-    blue = cv2.multiply(img[:, :, 0], gain)
-    green = cv2.multiply(img[:, :, 1], gain)
-    red = cv2.multiply(img[:, :, 2], gain)
-    img_bright = cv2.merge([blue, green, red])
-
-    #thresh = cv2.threshold(L, value, 255, cv2.THRESH_BINARY)[1]
-
-    # invert threshold and make 3 channels
-
-    gain = 1.5
-    blue = cv2.multiply(img[:, :, 0], gain)
-    green = cv2.multiply(img[:, :, 1], gain)
-    red = cv2.multiply(img[:, :, 2], gain)
-    img_bright = cv2.merge([blue, green, red])
 
     # blend original and brightened using thresh as mask
-    result = np.where(thresh == 255, img_bright, img)
+    #result = np.where(thresh == 255, img_bright, img)
     return result
 
 
