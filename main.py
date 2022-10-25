@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
-cv2.namedWindow("original")
-cv2.namedWindow("new")
+cv2.namedWindow("Vorher -> Nachher")
+# cv2.namedWindow("new")
 vc = cv2.VideoCapture(0)
 
 # function to increase visibility in rgb image by adjusting the contrast and brightness
@@ -24,14 +24,15 @@ def increase_contrast(img):
     enhanced_img = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
 
     # Stacking the original image with the enhanced image
-    result = np.hstack((img, enhanced_img))
-    return result
+
+    # print(np.shape(result))
+    return enhanced_img
 
 
 def increase_visibility(img):
-    img = increase_contrast(img)
+    img_hc = increase_contrast(img)
     max_gain = 3
-    LAB = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    LAB = cv2.cvtColor(img_hc, cv2.COLOR_BGR2LAB)
 
     L = LAB[:, :, 0]
 
@@ -41,23 +42,24 @@ def increase_visibility(img):
         value, thresh = cv2.threshold(
             L, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_TRIANGLE)
         new_value = value * 1/(i+10)
-        print(value)
+        # print(value)
         # if i == 20:
         thresh = cv2.threshold(L, new_value, 255, cv2.THRESH_BINARY)[1]
         thresh = 255 - thresh
         thresh = cv2.merge([thresh, thresh, thresh])
 
         gain = max_gain * 1+(1/(i+1))
-        blue = cv2.multiply(img[:, :, 0], gain)
-        green = cv2.multiply(img[:, :, 1], gain)
-        red = cv2.multiply(img[:, :, 2], gain)
+        blue = cv2.multiply(img_hc[:, :, 0], gain)
+        green = cv2.multiply(img_hc[:, :, 1], gain)
+        red = cv2.multiply(img_hc[:, :, 2], gain)
         img_bright = cv2.merge([blue, green, red])
-        result = np.where(thresh == 255, img_bright, img)
+        result = np.where(thresh == 255, img_bright, img_hc)
 
     # invert threshold and make 3 channels
 
     # blend original and brightened using thresh as mask
     #result = np.where(thresh == 255, img_bright, img)
+    result = np.hstack((img, result))
     return result
 
 
@@ -69,8 +71,7 @@ else:
 while rval:
 
     frame_new = increase_visibility(frame)
-    #cv2.imshow("original", frame)
-    cv2.imshow("new", frame_new)
+    cv2.imshow("Vorher -> Nachher", frame_new)
 
     rval, frame = vc.read()
     key = cv2.waitKey(20)
@@ -78,5 +79,4 @@ while rval:
         break
 
 vc.release()
-cv2.destroyWindow("preview")
-cv2.destroyWindow("new")
+cv2.destroyWindow("Vorher -> Nachher")
