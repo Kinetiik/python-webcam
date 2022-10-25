@@ -37,26 +37,24 @@ def increase_contrast(img):
 
 def increase_visibility(img):
     img_hc = increase_contrast(img)
-    max_gain = 3  # TODO needs to be adjusted
+    gain = 3
     LAB = cv2.cvtColor(img_hc, cv2.COLOR_BGR2LAB)
 
     L = LAB[:, :, 0]
 
-    for i in range(1):  # TODO needs adjustment
-        value, thresh = cv2.threshold(
-            L, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_TRIANGLE)
-        new_value = value + 10
+    value, thresh = cv2.threshold(
+        L, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_TRIANGLE)
+    new_value = value + 10
 
-        thresh = cv2.threshold(L, new_value, 255, cv2.THRESH_BINARY)[1]
-        thresh = 255 - thresh
-        thresh = cv2.merge([thresh, thresh, thresh])
+    thresh = cv2.threshold(L, new_value, 255, cv2.THRESH_BINARY)[1]
+    thresh = 255 - thresh
+    thresh = cv2.merge([thresh, thresh, thresh])
 
-        gain = max_gain * 1+(1/(i+1))
-        blue = cv2.multiply(img_hc[:, :, 0], gain)
-        green = cv2.multiply(img_hc[:, :, 1], gain)
-        red = cv2.multiply(img_hc[:, :, 2], gain)
-        img_bright = cv2.merge([blue, green, red])
-        result = np.where(thresh == 255, img_bright, img_hc)
+    blue = cv2.multiply(img_hc[:, :, 0], gain)
+    green = cv2.multiply(img_hc[:, :, 1], gain)
+    red = cv2.multiply(img_hc[:, :, 2], gain)
+    img_bright = cv2.merge([blue, green, red])
+    result = np.where(thresh == 255, img_bright, img_hc)
 
     result = np.hstack((decrease_brightness(img), result))
     return result
