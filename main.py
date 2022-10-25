@@ -31,10 +31,10 @@ def increase_visibility(img):
 
     L = LAB[:, :, 0]
 
-    for i in range(5):  # TODO needs adjustment
+    for i in range(1):  # TODO needs adjustment
         value, thresh = cv2.threshold(
             L, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_TRIANGLE)
-        new_value = value * 1/(i+10)
+        new_value = value + 10
 
         thresh = cv2.threshold(L, new_value, 255, cv2.THRESH_BINARY)[1]
         thresh = 255 - thresh
