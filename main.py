@@ -1,10 +1,7 @@
 import cv2
 import numpy as np
 cv2.namedWindow("Vorher -> Nachher")
-# cv2.namedWindow("new")
 vc = cv2.VideoCapture(0)
-
-# function to increase visibility in rgb image by adjusting the contrast and brightness
 
 
 def increase_contrast(img):
@@ -24,26 +21,21 @@ def increase_contrast(img):
     enhanced_img = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
 
     # Stacking the original image with the enhanced image
-
-    # print(np.shape(result))
     return enhanced_img
 
 
 def increase_visibility(img):
     img_hc = increase_contrast(img)
-    max_gain = 3
+    max_gain = 3  # TODO needs to be adjusted
     LAB = cv2.cvtColor(img_hc, cv2.COLOR_BGR2LAB)
 
     L = LAB[:, :, 0]
 
-    # threshold L channel with triangle method
-
-    for i in range(5):
+    for i in range(5):  # TODO needs adjustment
         value, thresh = cv2.threshold(
             L, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_TRIANGLE)
         new_value = value * 1/(i+10)
-        # print(value)
-        # if i == 20:
+
         thresh = cv2.threshold(L, new_value, 255, cv2.THRESH_BINARY)[1]
         thresh = 255 - thresh
         thresh = cv2.merge([thresh, thresh, thresh])
@@ -55,10 +47,6 @@ def increase_visibility(img):
         img_bright = cv2.merge([blue, green, red])
         result = np.where(thresh == 255, img_bright, img_hc)
 
-    # invert threshold and make 3 channels
-
-    # blend original and brightened using thresh as mask
-    #result = np.where(thresh == 255, img_bright, img)
     result = np.hstack((img, result))
     return result
 
