@@ -4,14 +4,10 @@ cv2.namedWindow("Vorher -> Nachher")
 vc = cv2.VideoCapture(0)
 
 
-def decrease_brightness(img):
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    h, s, v = cv2.split(hsv)
-    lim = 255 - 20
-    v[v > lim] = 255
-    v[v <= lim] += 20
-    final_hsv = cv2.merge((h, s, v))
-    img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+def decrease_brightness_of_image(img):
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    img[:, :, 2] = img[:, :, 2] * 0.6
+    img = cv2.cvtColor(img, cv2.COLOR_HSV2BGR)
     return img
 
 
@@ -56,7 +52,7 @@ def increase_visibility(img):
     img_bright = cv2.merge([blue, green, red])
     result = np.where(thresh == 255, img_bright, img_hc)
 
-    result = np.hstack((decrease_brightness(img), result))
+    result = np.hstack((decrease_brightness_of_image(img), result))
     return result
 
 
