@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from helper_functions import increase_visibility, decrease_brightness_of_image, increase_contrast
+from helper_functions import *
 from config import *
 
 if __name__ == "__main__":
