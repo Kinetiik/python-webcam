@@ -5,7 +5,7 @@ from config import *
 
 def decrease_brightness_of_image(img, active: bool = False):
     img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    img[:, :, 2] = img[:, :, 2] * 0.6
+    img[:, :, 2] = img[:, :, 2] * demo_modifier
     img = cv2.cvtColor(img, cv2.COLOR_HSV2BGR)
     return img
 
