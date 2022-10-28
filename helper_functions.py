@@ -4,9 +4,10 @@ from config import *
 
 
 def decrease_brightness_of_image(img, active: bool = False):
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    img[:, :, 2] = img[:, :, 2] * demo_modifier
-    img = cv2.cvtColor(img, cv2.COLOR_HSV2BGR)
+    if active:
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        img[:, :, 2] = img[:, :, 2] * demo_modifier
+        img = cv2.cvtColor(img, cv2.COLOR_HSV2BGR)
     return img
 
 
@@ -47,6 +48,7 @@ def increase_visibility(img):
     green = cv2.multiply(img_hc[:, :, 1], gain)
     red = cv2.multiply(img_hc[:, :, 2], gain)
     img_bright = cv2.merge([blue, green, red])
+    # TODO: apply cap to brightened pixels to prevent artifacts and overexposure
     result = np.where(thresh == 255, img_bright, img_hc)
 
     return result

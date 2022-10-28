@@ -17,8 +17,11 @@ if __name__ == "__main__":
 
         active, frame = stream.read()
         original_frame = decrease_brightness_of_image(frame, demo_effect)
+
+        # TODO: smoothen the mask to achieve more even results in brightened image
         enhanced_frame = increase_visibility(frame)
 
+        # TODO: smoothen the transition between the two images
         side_by_side = np.hstack((original_frame, enhanced_frame))
         cv2.imshow("Vorher -> Nachher", side_by_side)
 
