@@ -1,44 +1,30 @@
 import cv2
 import numpy as np
-cv2.namedWindow("original")
-cv2.namedWindow("new")
-vc = cv2.VideoCapture(0)
+from helper_functions import increase_visibility, decrease_brightness_of_image, increase_contrast
+from config import *
 
-# adjust brightness in rgb image to make object more visible
+if __name__ == "__main__":
 
+    cv2.namedWindow("Vorher -> Nachher")
+    stream = cv2.VideoCapture(0)
 
-def adjust_image(frame):
-    # convert to hsv
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    # get brightness
-    h, s, v = cv2.split(hsv)
-    # increase brightness
-    lim = 255 - 50
-    v[v > lim] = 255
-    v[v <= lim] += 50
-    # merge hsv
-    final_hsv = cv2.merge((h, s, v))
-    # convert to rgb
-    frame = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
-    return frame
+    if stream.isOpened():  # try to get the first frame
+        active, frame = stream.read()
+    else:
+        active = False
 
+    while active:
 
-if vc.isOpened():  # try to get the first frame
-    rval, frame = vc.read()
-else:
-    rval = False
+        active, frame = stream.read()
+        original_frame = decrease_brightness_of_image(frame, demo_effect)
+        enhanced_frame = increase_visibility(frame)
 
-while rval:
+        side_by_side = np.hstack((original_frame, enhanced_frame))
+        cv2.imshow("Vorher -> Nachher", side_by_side)
 
-    frame_new = adjust_image(frame)
-    cv2.imshow("original", frame)
-    cv2.imshow("new", frame_new)
+        key = cv2.waitKey(20)
+        if key == 27:  # exit on ESC
+            break
 
-    rval, frame = vc.read()
-    key = cv2.waitKey(20)
-    if key == 27:  # exit on ESC
-        break
-
-vc.release()
-cv2.destroyWindow("preview")
-cv2.destroyWindow("new")
+    stream.release()
+    cv2.destroyWindow("Vorher -> Nachher")
